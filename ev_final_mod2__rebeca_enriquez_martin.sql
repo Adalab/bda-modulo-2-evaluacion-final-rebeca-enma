@@ -188,6 +188,8 @@ HAVING AVG(`film`.`length`) > 120;       -- Filtramos por duracion
 
 
 /*___EJERCICIO 21___*/	
+-- Mostramos nombre y apellido de los actores que han aparecido en 5 o mas peliculas, unimos actores con la tabla intermedia a peliculas
+-- Agrupamos por ID actor y filtamos por los actores que su recuento sea >= 5 
 SELECT `actor`.`first_name` AS `Actor_name`, `actor`.`last_name` AS `Actor_last_name`, COUNT(`film_actor`.`film_id`) AS `N_Films`
 FROM `actor`
 	INNER JOIN `film_actor`
@@ -195,3 +197,62 @@ FROM `actor`
 GROUP BY `film_actor`.`actor_id`
 HAVING COUNT(`film_actor`.`film_id`) >= 5;
 
+/*___EJERCICIO 22___*/	
+
+SELECT DISTINCT`film`.`title` AS `Film_rent_>5days` -- Seleccionamos los titulos de las pelis, eliminando duplicados
+FROM `film`
+	INNER JOIN `inventory`									-- UNIMOS INVENTARIO CON PELICULAS CUANDO SE CUMPLA LA SUBQUERI
+    ON `film`.`film_id` = `inventory`.`film_id`
+		WHERE `inventory`.`inventory_id` IN (
+											SELECT `rental`.`inventory_id`				-- SELECCIONAMOS LOS ID DE INVENTARIO HAN SIDO ALQUILADAS > 5 DIAS
+											FROM `rental`
+												WHERE DATEDIFF(return_date, rental_date) > 5);
+                                                
+/*___EJERCICIO 23___*/	
+-- En la subqueri buscamos todos los actores que han participado en una pelicula de HORROR
+-- En la Queri comparamos el ID y seleccionamos los que NO hayan participado en peliculas de HORROR
+	
+SELECT `actor`.`first_name` AS `NOMBRE`, `actor`.`last_name` AS `APELLIDO`  -- Seleccionamos el NOMBRE y Apellido de los actores que NO han participado en pelis del genero HORROR
+FROM `actor`
+    WHERE `actor`.`actor_id` NOT IN (
+										SELECT `film_actor`.`actor_id`  -- Seleccionamos el ID de los actores que han participado en pelis del genero HORROR
+										FROM  `film_actor`
+											INNER JOIN `film` -- Unimos actor con pelicula
+											USING (film_id)
+											INNER JOIN `film_category` -- Unimos el ID de las peliculas del genero HORROR
+											USING (film_id)
+											INNER JOIN `category` -- Unimos obteneiendo el ID de la categoria
+											USING (category_id)
+											WHERE `category`.`name` = "Horror");   -- filtramos por ID de la categoria HORROR 
+                                            
+/*_________________________BONUS_____________________________*/	  
+                                          
+/*___EJERCICIO 24___*/
+-- Nombre pelis duracion > 180 y genero COMEDIA
+SELECT `film`.`title`AS `Comedy_Film_Length_>180_Min` 
+FROM `film`
+	INNER JOIN `film_category` 	-- Unimos para obtener el ID de las peliculas del genero COMEDY
+	USING (film_id)
+		WHERE `film`.`length` >180  AND `film_category`.`category_id` IN 
+																	(SELECT `category`.`category_id` -- Seleccionamos el ID de la categoria COMEDY
+																		FROM `category`
+																		WHERE `category`.`name` = "Comedy"); 
+                                                                        
+ /*___EJERCICIO 25__*/	
+-- Actores que han actuado juntos en al menos una película y numero de pelis
+-- Valores duplicados porque cuando el nombre de actor 2 vuelva a la posicion 1, duplicara datos 
+         
+SELECT `ACT1`.`first_name` AS `Name_ACTOR1`, `ACT1`.`last_name` AS `Last_name_ACTOR1`,
+		`ACT2`.`first_name` AS `Name_ACTOR2`, `ACT2`.`last_name` AS `Last_name_ACTOR2`, COUNT(*) AS `Common_Movies`
+FROM `actor` AS `ACT1`
+		INNER JOIN `film_actor` AS `FM1`                        -- Obtenemos las pelis en las que ha participado el actor
+		ON `ACT1`.`actor_id` = `FM1`.`actor_id`
+        INNER JOIN `film_actor` AS `FM2`     					-- Obtenemos los compañeros				
+		ON `FM1`.`film_id` = `FM2`.`film_id` 
+			AND `FM1`.`actor_id` <> `FM2`.`actor_id`
+		INNER JOIN `actor` AS `ACT2`                       	   -- Obtenemos los valores del compañero
+		ON `ACT2`.`actor_id` = `FM2`.`actor_id`
+GROUP BY `ACT1`.`actor_id`, `ACT2`.`actor_id`;                                                                       
+        
+        
+        
