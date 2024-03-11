@@ -78,3 +78,59 @@ FROM `customer`
 	INNER JOIN `rental`
     USING (customer_id)
 GROUP BY `rental`.`customer_id`;
+
+/*___EJERCICIO 11__*/ 
+-- Revisamos el esquema y vemos como se unen las tablas de renta (donde figuran los alquileres) y categoria (para obtener el nombre de la categoria)
+-- Buscamos los nexos para unir las tablas, y agrupamos por Nombre-categoria
+SELECT `category`.`name` AS `Category`, COUNT(`rental`.`rental_id`) AS `Rented_movies`
+FROM `category`
+	INNER JOIN `film_category`
+    USING (category_id)
+    INNER JOIN `film`
+    USING (film_id)
+    INNER JOIN `inventory`
+    USING (film_id)
+    INNER JOIN `rental`
+    USING (inventory_id)
+GROUP BY `Category`;
+
+/*___EJERCICIO 12__*/     
+-- Agrupamos por calificacion y realizamos la media para cada grupo
+SELECT `rating` AS `calificación rating`, ROUND(AVG(`length`)) AS `Length_AVG`
+FROM `film`
+GROUP BY `calificación rating`;
+
+/*___EJERCICIO 13__*/
+-- En la subconsulta buscamos el ID de la peli, para poder unirlo con el actor, como no tenemos conexion directa a su tabla, primero conectamos cn la tabla intermidia
+SELECT `actor`.`first_name` AS `Actor_name`, `actor`.`last_name` AS `Actor_last_name`
+FROM `actor`
+	INNER JOIN `film_actor`
+    ON `actor`.`actor_id` = `film_actor`.`actor_id` 
+    INNER JOIN `film`
+    ON `film_actor`.`film_id` = `film`.`film_id` 
+		WHERE `film`.`title` = "Indian Love";
+
+
+/*___EJERCICIO 14___*/
+-- Mostramos los titulos filtrnado que contengan CAT o DOG en alguna parte de tu titulo
+SELECT `title` AS `Film_title`
+FROM `film`
+WHERE `title` LIKE "%Dog%" OR "%Cat%";
+
+/*___EJERCICIO 15___*/
+-- Lo podemos hacer con un LEFT JOIN o con una SUBCONSULTA
+-- Con la subconsulta pasamos una lista de numeros a la queri principal y si algun ID no esta en esa lista que nos lo muestre
+SELECT `actor`.`first_name` AS `Actor_name`, `actor`.`last_name` AS `Actor_last_name`
+FROM `actor`
+WHERE `actor`.`actor_id` NOT IN ( SELECT `film_actor`.`actor_id`
+									FROM `film_actor`);   
+
+
+-- Con LEFT JOIN podemos poner a la "izquierda" la tabla de actores y que lo una con la tabla FILM ACTOR y si el valor es uno que nos lo muestre por pantalla
+SELECT `actor`.`first_name` AS `Actor_name`, `actor`.`last_name` AS `Actor_last_name`
+FROM `actor`
+	LEFT JOIN `film_actor`
+    ON `actor`.`actor_id` = `film_actor`.`actor_id`
+        WHERE `film_actor`.`actor_id` IS NULL;
+     
+    
