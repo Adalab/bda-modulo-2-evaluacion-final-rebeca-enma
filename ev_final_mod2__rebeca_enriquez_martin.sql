@@ -133,4 +133,65 @@ FROM `actor`
     ON `actor`.`actor_id` = `film_actor`.`actor_id`
         WHERE `film_actor`.`actor_id` IS NULL;
      
+/*___EJERCICIO 16___*/
+-- Seleccionamos el nombre de la pelicula y filtamos el año de lanzamiento entre los años 2005 y 2010
+SELECT `title` AS `Film_title`
+FROM `film`
+WHERE `release_year` BETWEEN 2005 AND 2010;
+
+/*___EJERCICIO 17___*/    
+-- Mostramos todas las peliculas que son de la misma categoria que "FAMILIA", para ello nos creamos una CTE (Tabla temporal) 
+-- en la que buscamos el ID de la categoria que queremos 
+-- Hacemos una union de tablas a traves de la columna que tienen en comun (utilizamos USING porque tienen el mismo nombre)
+-- finalmente en vez de utilizar WHERE utilizamos un join para hacer un filtrado por la categoria seleccionada en la CTE
+		
+WITH `Categoria_CTE` AS (
+						 SELECT `category`.`category_id`
+                         FROM `category`
+								WHERE `category`.`name` = "Family")
+
+SELECT `film`.`title` AS `Film_Famiy_Category`
+FROM `film`
+	INNER JOIN `film_category`  AS `Categoria`
+	USING (film_id)
+		INNER JOIN `Categoria_CTE`
+			ON `Categoria`.`category_id` = `Categoria_CTE`.`category_id`;
+            
+/*___EJERCICIO 18___*/	
+-- Mostramos nombre y apellido de los actores que han aparecido en mas de 10 peliculas, unimos actores con la tabla intermedia a peliculas
+-- Agrupamos por ID actor y filtamos por los actores que su recuento sea superior a 10 
+SELECT `actor`.`first_name` AS `Actor_name`, `actor`.`last_name` AS `Actor_last_name`
+FROM `actor`
+	INNER JOIN `film_actor`
+    USING (actor_id)
+GROUP BY `film_actor`.`actor_id`
+HAVING COUNT(`film_actor`.`film_id`) > 10;
+
+/*___EJERCICIO 19___*/	
+-- Mostramos los titutlos de las peliculas que tienen una duracion > 2 horas y son clasificadas como R
+SELECT `film`.`title` AS `Film_Rating_"R"_&_Length > 2H`
+FROM `film`
+	WHERE `rating` = "R" AND `length` > 120;
     
+/*___EJERCICIO 20___*/	    
+-- Buscamos la duracion de las peliculas y lo unimos con el ID categoria
+-- Unimos ID categoria con el la tabla donde se encuentra el nombre 
+-- Agrupamos por nombre categoria y filtamos duracion media 
+SELECT ROUND(AVG(`film`.`length`),2) AS `AVG_Length`, `category`.`name` AS `Category_Name` 
+FROM `film`
+	INNER JOIN `film_category`  		 -- Obtenemos ID categoria
+	USING (film_id)             
+	INNER JOIN `category`                -- Obtenemos NOMBRE categoria    
+	USING (category_id)
+GROUP BY `film_category`.`category_id`   -- Agrupamos por categoria 
+HAVING AVG(`film`.`length`) > 120;       -- Filtramos por duracion
+
+
+/*___EJERCICIO 21___*/	
+SELECT `actor`.`first_name` AS `Actor_name`, `actor`.`last_name` AS `Actor_last_name`, COUNT(`film_actor`.`film_id`) AS `N_Films`
+FROM `actor`
+	INNER JOIN `film_actor`
+    USING (actor_id)
+GROUP BY `film_actor`.`actor_id`
+HAVING COUNT(`film_actor`.`film_id`) >= 5;
+
