@@ -40,7 +40,7 @@ A las compañeras por el apoyo y los animos y a los profes por su paciencia en e
 
 ## Autor
 
-💫 Rebeca Enriquez
+💫- Rebeca Enriquez
     - [Linkedin](https://www.linkedin.com/in/rebeca-enr%C3%ADquez-mart%C3%ADn-a2ab71176/)
     - [Git_Hub](https://github.com/rebeca-enma)
 
