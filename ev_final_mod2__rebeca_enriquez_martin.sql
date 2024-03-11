@@ -240,7 +240,6 @@ FROM `film`
                                                                         
  /*___EJERCICIO 25__*/	
 -- Actores que han actuado juntos en al menos una película y numero de pelis
--- Valores duplicados porque cuando el nombre de actor 2 vuelva a la posicion 1, duplicara datos 
          
 SELECT `ACT1`.`first_name` AS `Name_ACTOR1`, `ACT1`.`last_name` AS `Last_name_ACTOR1`,
 		`ACT2`.`first_name` AS `Name_ACTOR2`, `ACT2`.`last_name` AS `Last_name_ACTOR2`, COUNT(*) AS `Common_Movies`
@@ -254,5 +253,5 @@ FROM `actor` AS `ACT1`
 		ON `ACT2`.`actor_id` = `FM2`.`actor_id`
 GROUP BY `ACT1`.`actor_id`, `ACT2`.`actor_id`;                                                                       
         
-        
+ 
         
